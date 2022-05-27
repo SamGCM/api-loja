@@ -20,12 +20,6 @@ public class ProdutoController {
         return produtoService.listAll();
     }
 
-//    @GetMapping("/busca")
-//    public List<ProdutoDTO> buscarProduto(
-//            ProdutoBusca dto) {
-//        return produtoService.specification(dto);
-//    }
-
     @PostMapping
     public Mono<Produto> criaProduto(@RequestBody ProdutoDTO produto){
         return produtoService.saveProduct(produto);

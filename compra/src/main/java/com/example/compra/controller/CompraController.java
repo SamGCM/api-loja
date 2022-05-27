@@ -2,6 +2,8 @@ package com.example.compra.controller;
 
 import com.example.compra.dto.CompraDTO;
 import com.example.compra.kafka.SendKafkaMessage;
+import com.example.compra.model.Compra;
+import com.example.compra.service.CompraService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,24 +15,26 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CompraController {
 
-    public static Map<String, CompraDTO> compras = new HashMap<>();
-    private final SendKafkaMessage sendKafkaMessage;
+    private final CompraService compraService;
 
     @PostMapping
     public CompraDTO novaCompra(@RequestBody CompraDTO compraDTO) {
-        compraDTO.setIdentificador(UUID.randomUUID().toString());
-        compraDTO.setHoraCompra(LocalDateTime.now());
+        compraDTO.setId(UUID.randomUUID().toString());
+        compraDTO.setDate(LocalDateTime.now());
         compraDTO.setStatus("RECEBIDA");
 
-        compras.put(compraDTO.getIdentificador(), compraDTO);
-        sendKafkaMessage.sendMessage(compraDTO);
-
-        return compraDTO;
+        return compraService.save(compraDTO);
     }
 
     @GetMapping
-    public List<CompraDTO> listCompras() {
-        return new ArrayList<>(compras.values());
+    public List<Compra> listCompras() {
+        return compraService.listAll();
     }
 
+    @GetMapping("/filter")
+    public Compra findById(
+            @RequestParam("id") String id
+    ) {
+        return compraService.findbyIdentifier(id);
+    }
 }
