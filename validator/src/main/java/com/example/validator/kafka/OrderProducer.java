@@ -1,25 +1,20 @@
 package com.example.validator.kafka;
 
+import com.example.validator.dto.CompraDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
-@Component
+@Service
+@RequiredArgsConstructor
 public class OrderProducer {
     @Value("${order.topic}")
     private String orderTopic;
 
-    private final KafkaTemplate kafkaTemplate;
+    private final KafkaTemplate<String, CompraDTO> kafkaTemplate;
 
-    public OrderProducer(final KafkaTemplate kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
-
-    public void send(final @RequestBody String order) {
-        final String mensageKey = UUID.randomUUID().toString();
-        kafkaTemplate.send(orderTopic, mensageKey, order);
+    public void send(CompraDTO compra) {
+        kafkaTemplate.send(orderTopic, compra);
     }
 }

@@ -1,24 +1,29 @@
 package com.example.validator.controller;
 
+import com.example.validator.dto.CompraDTO;
 import com.example.validator.kafka.OrderProducer;
+import com.example.validator.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/orders")
+@RequiredArgsConstructor
 @Slf4j
 public class OrderController {
-    private final OrderProducer orderProducer;
 
-    public OrderController(OrderProducer orderProducer) {
-        this.orderProducer = orderProducer;
+    @Autowired
+    OrderService orderService;
+
+    ControllerApi controllerApi;
+
+    public OrderController(ControllerApi communicateService) {
+        this.controllerApi = communicateService;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public void send(@RequestBody String order) {
-        orderProducer.send(order);
+    @PostMapping
+    public CompraDTO send(@RequestBody CompraDTO compra) {
+        return orderService.createOrder(compra);
     }
 }

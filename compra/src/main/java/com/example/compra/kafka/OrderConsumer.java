@@ -1,19 +1,29 @@
 package com.example.compra.kafka;
 
-import com.example.compra.controller.CompraController;
 import com.example.compra.dto.CompraDTO;
+import com.example.compra.service.CompraService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Component
-@Slf4j
-public class OrderConsumer {
+import java.time.LocalDateTime;
 
-    @KafkaListener(topics = "${order.topic}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consumer(String order) {
-        log.info("Order: " + order);
+@Service
+@RequiredArgsConstructor
+public class OrderConsumer {
+    private final String KAFKA_TOPIC = "ordertopic";
+
+    @Autowired
+    CompraService compraService;
+
+    @KafkaListener(topics = KAFKA_TOPIC, groupId = "group-1")
+    public void consumer(CompraDTO compraDTO) {
+
+
+        compraDTO.setDate(LocalDateTime.now());
+        compraDTO.setStatus("RECEBIDA");
+
+        compraService.save(compraDTO);
     }
 }

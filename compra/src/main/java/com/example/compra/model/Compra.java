@@ -21,16 +21,16 @@ public class Compra implements Serializable {
     private String id_client;
     private LocalDateTime date;
     private String id_products;
-    private Float total;
+    private Long total;
     private String status;
 
     public static Compra convert(CompraDTO dto){
         return Compra
                 .builder()
                 .id(dto.getId())
-                .id_client(dto.getId_client())
+                .id_client(dto.getClient_id())
                 .date(dto.getDate())
-                .id_products(dto.getId_products())
+                .id_products(dto.getPr_code().toString())
                 .total(dto.getTotal())
                 .status(dto.getStatus())
                 .build();

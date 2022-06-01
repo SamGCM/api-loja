@@ -12,6 +12,6 @@ public class CompraDTO {
     private String client_id;
     private LocalDateTime date;
     private List<String> pr_code;
-    private Float total;
+    private Long total;
     private String status;
 }

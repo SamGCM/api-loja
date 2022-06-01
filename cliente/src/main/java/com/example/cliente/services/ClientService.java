@@ -32,7 +32,7 @@ public class ClientService {
     }
 
     public ClienteDTO findById(String id) {
-        Cliente cliente = clienteRepository.findByTaxpayerId(id)
+        Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException());
         return ClienteDTO.convert(cliente);
     }

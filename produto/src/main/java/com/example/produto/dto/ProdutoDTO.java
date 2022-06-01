@@ -15,6 +15,7 @@ public class ProdutoDTO {
 
     private String id;
     private String code;
+    private String name;
     private Long price;
     private int units;
 
@@ -22,6 +23,7 @@ public class ProdutoDTO {
         return ProdutoDTO
                 .builder()
                 .code(produto.getCode())
+                .name(produto.getName())
                 .price(produto.getPrice())
                 .units(produto.getUnits())
                 .id(produto.getId())
