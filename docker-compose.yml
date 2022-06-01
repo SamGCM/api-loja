@@ -1,0 +1,195 @@
+version: "3"
+services:
+  eureka-server:
+    image: eureka-server:0.1
+    container_name: "eureka-server"
+    networks:
+      - api-loja
+    ports:
+      - "8761:8761"
+    depends_on:
+      - prometheus
+
+  gateway:
+    image: gateway-api:0.1
+    container_name: "gateway"
+    depends_on:
+      - eureka-server
+    networks:
+      - api-loja
+    ports:
+      - "9995:9995"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    container_name: prometheus
+    networks:
+      - api-loja
+    ports:
+      - "9090:9090"
+    volumes:
+      - C:/Users/Samue/IdeaProjects/loja-api/produto/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prom/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:5.2.1
+    networks:
+      - api-loja
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  kafka:
+    image: confluentinc/cp-kafka:5.2.1
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    networks:
+      - api-loja
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  redis:
+    image: redis
+    container_name: redis
+    networks:
+      - api-loja
+    restart: always
+    ports:
+      - "6379:6379"
+
+#  mongodb:
+#    image: mongo
+#    container_name: mongodb
+#    restart: always
+#    networks:
+#      - api-loja
+#    ports:
+#      - "27017:27017"
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: Admin
+#      MONGO_INITDB_ROOT_PASSWORD: TAvtXVEzqqhUYGbH
+#
+#  mongo-express:
+#    image: mongo-express
+#    container_name: mongo-express
+#    restart: always
+#    depends_on:
+#      - mongo
+#    networks:
+#      - api-loja
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: Admin
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: TAvtXVEzqqhUYGbH
+##      ME_CONFIG_MONGODB_URL: mongodb+srv://Admin:TAvtXVEzqqhUYGbH@cluster0.q2toz.mongodb.net/test
+#      ME_CONFIG_MONGODB_SERVER: mongo
+
+#  mysql_db:
+#    image: "mysql:8.0"
+#    container_name: "mysql_db"
+#    restart: always
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - api-loja
+#    environment:
+#      MYSQL_DATABASE: loja
+#      MYSQL_ROOT_PASSWORD: root
+
+  validator-app:
+    image: validator:0.1
+    container_name: validator-app
+    ports:
+      - "8082:8082"
+    networks:
+      - api-loja
+    depends_on:
+      - zookeeper
+      - kafka
+      - gateway
+    environment:
+      spring.kafka.consumer.bootstrap-servers: kafka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      EUREKA_INSTANCE_PREFERIPADDRESS: true
+
+  compra-app:
+    image: compra:0.1
+    container_name: compra-app
+    ports:
+      - "8086:8086"
+    networks:
+      - api-loja
+    depends_on:
+      - redis
+      - zookeeper
+      - kafka
+      - gateway
+    environment:
+      spring.redis.host: redis
+      spring.redis.port: 6379
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      spring.kafka.consumer.bootstrap-servers: kafka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      EUREKA_INSTANCE_PREFERIPADDRESS: true
+
+#  produto-app:
+#    image: produto:0.1
+#    container_name: produto-app
+#    ports:
+#      - "8085:8085"
+#    networks:
+#      - api-loja
+#    depends_on:
+#      - mongo-express
+#      - mongodb
+#      - gateway
+#    environment:
+#      spring.data.mongo.db: mongodb
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+#      EUREKA_INSTANCE_PREFERIPADDRESS: true
+#
+#  cliente-app:
+#    image: cliente:0.1
+#    container_name: cliente-app
+#    networks:
+#      - api-loja
+#    restart: on-failure
+#    ports:
+#      - "8083:8083"
+#    depends_on:
+#      - mysql_db
+#      - gateway
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/loja?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8&useLegacyDatetimeCode=true&createDatabaseIfNotExist=true&useTimezone=true&serverTimezone=UTC
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+#      EUREKA_INSTANCE_PREFERIPADDRESS: true
+
+volumes:
+  redis:
+    driver: local
+  mysql_db:
+    driver: local
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
+  prometheus-data:
+
+networks:
+  api-loja:
+    driver: bridge

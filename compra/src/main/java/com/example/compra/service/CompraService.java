@@ -29,8 +29,10 @@ public class CompraService {
     }
 
     @Cacheable(cacheNames = "Compra", key="#identifier")
-    public Compra findbyIdentifier(final String identifier) {
-        return compraRepository.findById(identifier)
-                .orElseThrow(() -> new EntityNotFoundException("Identifier not found: " + identifier));
+    public Compra findbyId(
+            String id
+    ) {
+        return compraRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Identifier not found: " + id));
     }
 }

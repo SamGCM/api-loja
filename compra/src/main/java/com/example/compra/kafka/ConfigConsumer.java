@@ -39,6 +39,7 @@ public class ConfigConsumer {
     public ConsumerFactory<String, CompraDTO> consumerFactory() {
         JsonDeserializer<CompraDTO> deserializer = new JsonDeserializer<>(CompraDTO.class);
         deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaAddress);

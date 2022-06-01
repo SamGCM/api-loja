@@ -2,7 +2,6 @@ package com.example.compra.controller;
 
 import com.example.compra.dto.CompraDTO;
 import com.example.compra.gateway.ControllerApi;
-import com.example.compra.kafka.SendKafkaMessage;
 import com.example.compra.model.Compra;
 import com.example.compra.service.CompraService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -44,11 +43,11 @@ public class CompraController {
     }
 
     @CircuitBreaker(name = "filterId-with-error")
-    @GetMapping("/filter")
+    @GetMapping("filter")
     public Compra findById(
             @RequestParam("id") String id
     ) {
-        return compraService.findbyIdentifier(id);
+        return compraService.findbyId(id);
     }
 
     public String fallback(Exception ex) {

@@ -28,25 +28,25 @@ spring:
           enabled: true
       routes:
         - id: CLIENTE-APP
-          uri: http://localhost:8083/
+          uri: lb://CLIENTE-APP
           predicates:
             - Path=/cliente/**
           filters:
             - RewritePath=/cliente/(?<path>.*), /$\{path}
         - id: PRODUTO-APP
-          uri: http://localhost:8085/
+          uri: lb://PRODUTO-APP
           predicates:
             - Path=/produto/**
           filters:
             - RewritePath=/produto/(?<path>.*), /$\{path}
         - id: COMPRA-APP
-          uri: http://localhost:8086/
+          uri: lb://COMPRA-APP
           predicates:
             - Path=/compra/**
           filters:
             - RewritePath=/compra/(?<path>.*), /$\{path}
         - id: VALIDATOR-APP
-          uri: http://localhost:8081/
+          uri: lb://VALIDATOR-APP
           predicates:
             - Path=/validator/**
           filters:

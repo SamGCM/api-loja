@@ -1,6 +1,6 @@
 FROM amazoncorretto:11-alpine
 
-COPY target/validator-0.0.1-SNAPSHOT.jar app.jar
+COPY target/compra-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 
-EXPOSE 8082
+EXPOSE 8086
